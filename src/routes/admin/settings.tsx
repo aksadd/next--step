@@ -1,0 +1,12 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { AdminShell } from "./episodes";
+export const Route=createFileRoute("/admin/settings")({component:Settings});
+const fields:[string,string,"input"|"textarea"][]=[["podcast_name","Podcast name","input"],["tagline","Tagline","input"],["description","Short description","textarea"],["about_podcast","About the podcast","textarea"],["host_name","Host name","input"],["host_bio","Host bio","textarea"],["hero_image_url","Hero image URL","input"],["host_image_url","Host image URL","input"],["contact_email","Contact email","input"],["social_handles","Social handles (display only)","input"],["instagram_url","Instagram URL","input"],["tiktok_url","TikTok URL","input"],["youtube_url","YouTube URL","input"],["spotify_url","Spotify URL","input"],["apple_url","Apple Podcasts URL","input"],["footer_text","Footer text","input"]];
+function Settings(){const [values,setValues]=useState<Record<string,string>>({});const [busy,setBusy]=useState(false);useEffect(()=>{(async()=>{const {data}=await supabase.from("site_settings").select("key,value");setValues(Object.fromEntries((data||[]).map(r=>[r.key,r.value||""])))})()},[]);async function save(e:React.FormEvent){e.preventDefault();setBusy(true);const {error}=await supabase.from("site_settings").upsert(Object.entries(values).map(([key,value])=>({key,value})));setBusy(false);if(error)toast.error(error.message);else toast.success("Settings saved.")}return <AdminShell title="Site settings"><form onSubmit={save} className="max-w-3xl"><p className="mb-8 text-muted-foreground">Only confirmed links are shown publicly. Leave a field empty to keep it hidden.</p><div className="grid gap-5 md:grid-cols-2">{fields.map(([key,label,type])=><div key={key} className={type==="textarea"?"md:col-span-2":""}><Label htmlFor={key}>{label}</Label>{type==="textarea"?<Textarea id={key} className="mt-1.5 min-h-28" value={values[key]||""} onChange={e=>setValues({...values,[key]:e.target.value})}/>:<Input id={key} className="mt-1.5" value={values[key]||""} onChange={e=>setValues({...values,[key]:e.target.value})}/>}</div>)}</div><Button className="mt-8" disabled={busy}>{busy?"Saving…":"Save settings"}</Button></form></AdminShell>}
