@@ -27,8 +27,10 @@ function parseEnvFile(filePath: string): Record<string, string> {
 
 export function loadRuntimeEnv(): void {
   const candidates = [
+    "/vercel/share/.env.project",
     path.resolve(process.cwd(), ".env"),
     path.resolve(process.cwd(), ".env.local"),
+    path.resolve(process.cwd(), ".env.development.local"),
     path.resolve(process.cwd(), ".env.development"),
     path.resolve(process.cwd(), ".env.production"),
   ];
