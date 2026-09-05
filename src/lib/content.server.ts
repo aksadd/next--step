@@ -1,7 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 
-import "./runtime-env";
-
 /** Public read/write client used inside server functions (no session, RLS applies as anon). */
 export function publicServerClient() {
   const url = process.env["SUPABASE_URL"] ?? import.meta.env["VITE_SUPABASE_URL"];
